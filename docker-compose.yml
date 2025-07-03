@@ -3,20 +3,25 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 12344321m
-      POSTGRES_DB: steam_clone
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+    container_name: postgres
     ports:
       - "5432:5432"
+    environment:
+      POSTGRES_DB: steam_clone
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12344321m
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - steamnet
 
   backend:
     build:
       context: ../steam-clone-backend
       dockerfile: Dockerfile
+    container_name: steam-clone-backend
+    ports:
+      - "5000:5000"
     depends_on:
       - postgres
     environment:
@@ -25,25 +30,12 @@ services:
       DB_USER: postgres
       DB_PASSWORD: 12344321m
       DB_NAME: steam_clone
-    ports:
-      - "5000:5000"
     networks:
-      - steam-net
-
-  frontend:
-    build:
-      context: ../steam-clone-frontend
-      dockerfile: Dockerfile
-    depends_on:
-      - backend
-    ports:
-      - "3000:3000"
-    networks:
-      - steam-net
+      - steamnet
 
 volumes:
-  pgdata:
+  postgres_data:
 
 networks:
-  steam-net:
+  steamnet:
     driver: bridge
