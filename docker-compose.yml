@@ -1,22 +1,36 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  api:
-    build: .
+  backend:
+    build:
+      context: ../steam-clone-backend
     ports:
       - "5000:5000"
-    env_file:
-      - .env
     depends_on:
-      - db
-
-  db:
-    image: postgres:15
-    restart: always
+      - postgres
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASS}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=12344321m
+      - DB_NAME=steam
+
+  frontend:
+    build:
+      context: ../steam-clone-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: steam_clone
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12344321m
+    ports:
+      - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
